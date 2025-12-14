@@ -19,6 +19,31 @@
   font-size: 2rem;
 }
 
+.nav-menu {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-menu button {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav-menu button:hover {
+  color: #646cff;
+}
+
+.nav-menu button.active {
+  border-color: #646cff;
+  color: #646cff;
+}
+
 .user-info {
   display: flex;
   align-items: center;

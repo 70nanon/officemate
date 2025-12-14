@@ -283,12 +283,12 @@ seats (コレクション)
 
 #### 実装候補:
 
-- [ ] **プロフィール管理機能**
-  - [ ] ユーザープロフィール設定画面
-  - [ ] 表示名の変更
-  - [ ] パスワードの変更
-  - [ ] プロフィール画像のアップロード
-  - [ ] メールアドレスの変更
+- [x] **プロフィール管理機能**
+  - [x] ユーザープロフィール設定画面
+  - [x] 表示名の変更
+  - [x] パスワードの変更
+  - [x] プロフィール画像のアップロード
+  - [x] メールアドレスの変更
 - [ ] 座席予約機能（未来の日付で予約）
 - [ ] 座席履歴の表示（誰がいつ座っていたか）
 - [ ] 座席検索機能（特定のユーザーを探す）
@@ -416,19 +416,34 @@ npm run preview
 officemate/
 ├── src/
 │   ├── components/
-│   │   ├── SeatMap.tsx       # 座席マップコンポーネント
-│   │   └── SeatMap.css       # 座席マップのスタイル
-│   ├── App.tsx                # メインアプリケーション
-│   ├── App.css                # アプリケーションのスタイル
-│   ├── main.tsx               # エントリーポイント
-│   ├── index.css              # グローバルスタイル
-│   └── firebase.ts            # Firebase設定
-├── public/                    # 静的ファイル
-├── index.html                 # HTMLテンプレート
-├── package.json               # 依存関係の定義
-├── tsconfig.json              # TypeScript設定
-├── vite.config.ts             # Vite設定
-└── README.md                  # このファイル
+│   │   ├── SeatMap.tsx           # 座席マップコンポーネント
+│   │   ├── SeatMap.css           # 座席マップのスタイル
+│   │   ├── LoginForm.tsx         # ログインフォーム
+│   │   ├── SignupForm.tsx        # サインアップフォーム
+│   │   ├── ProfileSettings.tsx   # プロフィール設定
+│   │   └── ProfileSettings.css   # プロフィール設定のスタイル
+│   ├── contexts/
+│   │   └── AuthContext.tsx       # 認証状態管理
+│   ├── hooks/
+│   │   └── useSeats.ts           # 座席データ取得フック
+│   ├── services/
+│   │   ├── seatService.ts        # 座席データのCRUD操作
+│   │   ├── mapService.ts         # マップ管理
+│   │   ├── imageUploadService.ts # GASによる画像アップロード
+│   │   └── userService.ts        # ユーザープロフィール管理
+│   ├── App.tsx                    # メインアプリケーション
+│   ├── App.css                    # アプリケーションのスタイル
+│   ├── main.tsx                   # エントリーポイント
+│   ├── index.css                  # グローバルスタイル
+│   └── firebase.ts                # Firebase設定
+├── docs/
+│   └── GAS_SETUP.md               # Google Apps Script セットアップガイド
+├── public/                        # 静的ファイル
+├── index.html                     # HTMLテンプレート
+├── package.json                   # 依存関係の定義
+├── tsconfig.json                  # TypeScript設定
+├── vite.config.ts                 # Vite設定
+└── README.md                      # このファイル
 \`\`\`
 
 ## 🔧 今後の拡張予定

@@ -8,6 +8,7 @@ import {
   updateProfile
 } from 'firebase/auth'
 import { auth } from '../firebase'
+import { initializeUserProfile } from '../services/userService'
 
 interface AuthContextType {
   currentUser: User | null
@@ -40,6 +41,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // ユーザー作成後に表示名を設定
     if (userCredential.user) {
       await updateProfile(userCredential.user, { displayName })
+      // Firestoreにユーザープロフィールを作成
+      await initializeUserProfile(userCredential.user.uid, email, displayName)
       // 状態を更新
       setCurrentUser({ ...userCredential.user, displayName } as User)
     }
