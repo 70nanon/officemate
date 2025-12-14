@@ -8,13 +8,14 @@ import { getAuth } from 'firebase/auth'
 
 // TODO: Firebaseプロジェクトの設定情報に置き換えてください
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-}
+  apiKey: "AIzaSyBFtFB76U_63QAmHC2pRNsBjQ_lmrGVdlg",
+  authDomain: "officemate-3d064.firebaseapp.com",
+  projectId: "officemate-3d064",
+  storageBucket: "officemate-3d064.firebasestorage.app",
+  messagingSenderId: "810377340428",
+  appId: "1:810377340428:web:11b216d47cbe1b48dd7029",
+  measurementId: "G-8S0FEXD3H0"
+};
 
 // Firebaseアプリを初期化
 const app = initializeApp(firebaseConfig)
