@@ -1,27 +1,16 @@
 import { useState, useRef } from 'react'
 import './SeatMap.css'
-
-interface Seat {
-  id: string
-  x: number
-  y: number
-  occupiedBy: string | null
-}
+import { useSeats } from '../hooks/useSeats'
+import { updateSeat } from '../services/seatService'
+import { useAuth } from '../contexts/AuthContext'
 
 interface SeatMapProps {
   currentUser: string
 }
 
 function SeatMap({ currentUser }: SeatMapProps) {
-  const [seats, setSeats] = useState<Seat[]>([
-    { id: 'seat-1', x: 100, y: 100, occupiedBy: null },
-    { id: 'seat-2', x: 250, y: 100, occupiedBy: null },
-    { id: 'seat-3', x: 400, y: 100, occupiedBy: null },
-    { id: 'seat-4', x: 100, y: 250, occupiedBy: null },
-    { id: 'seat-5', x: 250, y: 250, occupiedBy: null },
-    { id: 'seat-6', x: 400, y: 250, occupiedBy: null },
-  ])
-
+  const { seats, loading, error } = useSeats()
+  const { currentUser: authUser } = useAuth()
   const [mapImage, setMapImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -36,23 +25,80 @@ function SeatMap({ currentUser }: SeatMapProps) {
     }
   }
 
-  const handleSeatClick = (seatId: string) => {
-    if (!currentUser) {
+  const handleSeatClick = async (seatId: string, currentOccupant: string | null) => {
+    if (!authUser) {
       alert('座席を選択するにはログインしてください')
       return
     }
 
-    setSeats(seats.map(seat => {
-      if (seat.id === seatId) {
-        // 空席の場合は占有、自分が座っている場合は解除
-        if (!seat.occupiedBy) {
-          return { ...seat, occupiedBy: currentUser }
-        } else if (seat.occupiedBy === currentUser) {
-          return { ...seat, occupiedBy: null }
-        }
+    try {
+      if (!currentOccupant) {
+        await updateSeat(seatId, authUser.uid)
+      } else if (currentOccupant === authUser.uid) {
+        await updateSeat(seatId, null)
+      } else {
+        alert('この座席は既に使用されています')
       }
-      return seat
-    }))
+    } catch (err) {
+      console.error('Error updating seat:', err)
+      alert('座席の更新に失敗しました')
+    }
+  }
+
+  const initializeSeats = async () => {
+    if (!window.confirm('初期座席データを作成しますか？（既存データは残ります）')) {
+      return
+    }
+
+    const { createSeat } = await import('../services/seatService')
+    const initialSeats = [
+      { x: 100, y: 100, occupiedBy: null, occupiedAt: null, mapId: 'default' },
+      { x: 250, y: 100, occupiedBy: null, occupiedAt: null, mapId: 'default' },
+      { x: 400, y: 100, occupiedBy: null, occupiedAt: null, mapId: 'default' },
+      { x: 100, y: 250, occupiedBy: null, occupiedAt: null, mapId: 'default' },
+      { x: 250, y: 250, occupiedBy: null, occupiedAt: null, mapId: 'default' },
+      { x: 400, y: 250, occupiedBy: null, occupiedAt: null, mapId: 'default' },
+    ]
+
+    try {
+      for (const seat of initialSeats) {
+        await createSeat(seat)
+      }
+      alert('座席データを作成しました！')
+    } catch (err) {
+      console.error('Error creating seats:', err)
+      alert('座席データの作成に失敗しました')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="seat-map-container">
+        <div className="loading">座席データを読み込み中...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="seat-map-container">
+        <div className="error">{error}</div>
+      </div>
+    )
+  }
+
+  // 座席がない場合は初期化ボタンを表示
+  if (seats.length === 0) {
+    return (
+      <div className="seat-map-container">
+        <div className="placeholder">
+          <p>📍 座席データがありません</p>
+          <button onClick={initializeSeats} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            初期座席データを作成
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -89,9 +135,9 @@ function SeatMap({ currentUser }: SeatMapProps) {
               {seats.map(seat => (
                 <g
                   key={seat.id}
-                  onClick={() => handleSeatClick(seat.id)}
+                  onClick={() => handleSeatClick(seat.id, seat.occupiedBy)}
                   className={`seat ${
-                    seat.occupiedBy === currentUser
+                    seat.occupiedBy === authUser?.uid
                       ? 'my-seat'
                       : seat.occupiedBy
                       ? 'occupied'

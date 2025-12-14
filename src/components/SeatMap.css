@@ -4,6 +4,20 @@
   gap: 1.5rem;
 }
 
+.loading, .error {
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  color: #c33;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+}
+
 .controls {
   display: flex;
   justify-content: space-between;
@@ -86,19 +100,18 @@
 }
 
 .seat {
-  transition: all 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .seat:hover .seat-circle {
-  transform: scale(1.2);
-  transform-origin: center;
+  stroke-width: 3;
 }
 
 .seat-circle {
   fill: rgba(100, 108, 255, 0.3);
   stroke: #646cff;
   stroke-width: 2;
-  transition: all 0.3s ease;
+  transition: stroke-width 0.2s ease, fill 0.2s ease;
 }
 
 .seat.occupied .seat-circle {
