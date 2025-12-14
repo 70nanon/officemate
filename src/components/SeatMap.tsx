@@ -1,8 +1,10 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './SeatMap.css'
 import { useSeats } from '../hooks/useSeats'
 import { updateSeat } from '../services/seatService'
 import { useAuth } from '../contexts/AuthContext'
+import { uploadImageWithRedirect } from '../services/imageUploadService'
+import { saveMap, subscribeToDefaultMap } from '../services/mapService'
 
 interface SeatMapProps {
   currentUser: string
@@ -12,16 +14,45 @@ function SeatMap({ currentUser }: SeatMapProps) {
   const { seats, loading, error } = useSeats()
   const { currentUser: authUser } = useAuth()
   const [mapImage, setMapImage] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setMapImage(event.target?.result as string)
+  // Firestoreからマップ画像を取得
+  useEffect(() => {
+    const unsubscribe = subscribeToDefaultMap((map) => {
+      if (map?.imageUrl) {
+        setMapImage(map.imageUrl)
       }
-      reader.readAsDataURL(file)
+    })
+    return unsubscribe
+  }, [])
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !authUser) return
+
+    if (!window.confirm('オフィスマップをアップロードしますか？全ユーザーに共有されます。')) {
+      return
+    }
+
+    try {
+      setUploading(true)
+
+      // Google Drive経由でアップロード
+      const { url } = await uploadImageWithRedirect(file)
+      
+      // FirestoreにURLを保存
+      await saveMap(url, authUser.uid, file.name)
+      
+      // 画面に反映
+      setMapImage(url)
+      
+      alert('マップをアップロードしました！')
+    } catch (err) {
+      console.error('Upload error:', err)
+      alert('アップロードに失敗しました。GASの設定を確認してください。')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -110,9 +141,13 @@ function SeatMap({ currentUser }: SeatMapProps) {
           accept="image/*"
           onChange={handleImageUpload}
           style={{ display: 'none' }}
+          disabled={uploading}
         />
-        <button onClick={() => fileInputRef.current?.click()}>
-          📁 オフィスマップを読み込む
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+        >
+          {uploading ? '⏳ アップロード中...' : '📁 オフィスマップを読み込む'}
         </button>
         <div className="legend">
           <span className="legend-item">
