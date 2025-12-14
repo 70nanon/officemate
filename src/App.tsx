@@ -3,10 +3,14 @@ import './App.css'
 import SeatMap from './components/SeatMap'
 import LoginForm from './components/LoginForm'
 import SignupForm from './components/SignupForm'
+import ProfileSettings from './components/ProfileSettings'
 import { useAuth } from './contexts/AuthContext'
+
+type View = 'map' | 'profile'
 
 function App() {
   const [isLoginMode, setIsLoginMode] = useState(true)
+  const [currentView, setCurrentView] = useState<View>('map')
   const { currentUser, logout } = useAuth()
 
   // ログインしていない場合は認証画面を表示
@@ -23,6 +27,20 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>🪑 OfficeMate</h1>
+        <nav className="nav-menu">
+          <button 
+            onClick={() => setCurrentView('map')}
+            className={currentView === 'map' ? 'active' : ''}
+          >
+            座席マップ
+          </button>
+          <button 
+            onClick={() => setCurrentView('profile')}
+            className={currentView === 'profile' ? 'active' : ''}
+          >
+            プロフィール
+          </button>
+        </nav>
         <div className="user-info">
           <span className="user-name">
             👤 {currentUser.displayName || currentUser.email}
@@ -34,7 +52,11 @@ function App() {
       </header>
       
       <main className="app-main">
-        <SeatMap currentUser={currentUser.displayName || currentUser.email || ''} />
+        {currentView === 'map' ? (
+          <SeatMap currentUser={currentUser.displayName || currentUser.email || ''} />
+        ) : (
+          <ProfileSettings />
+        )}
       </main>
 
       <footer className="app-footer">
